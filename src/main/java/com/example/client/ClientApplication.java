@@ -2,13 +2,12 @@ package com.example.client;
 
 import com.example.server.json.ArgumentsJson;
 import com.example.server.json.IndependentCalculatorJson;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 public class ClientApplication {
-    public static void main(String[] args) throws JsonProcessingException {
+    public static void main(String[] args) {
         RestClient client = new RestClient(8496);
         try {
             System.out.println("### TEST 1 ###");
