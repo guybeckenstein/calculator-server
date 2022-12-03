@@ -27,8 +27,9 @@ public class CalculatorController {
                     new ObjectMapper().readValue(body, IndependentCalculatorJson.class)
             );
         if (!calculate.getErrorMessage().isEmpty()) {
+            System.out.println(calculate.getErrorMessage());
             return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
-            }
+        }
             return new ResponseEntity<>(calculate, HttpStatus.OK);
         } catch (JsonMappingException | JsonParseException e) {
             System.out.println(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
@@ -66,6 +67,7 @@ public class CalculatorController {
         if (operation.matches("[a-zA-Z]+")) {
             ResponseJson calculate = calculator.calculateUsingStack(stack, operation);
             if (!calculate.getErrorMessage().isEmpty()) {
+                System.out.println(calculate.getErrorMessage());
                 return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
             }
             return new ResponseEntity<>(calculate, HttpStatus.OK);
