@@ -1,4 +1,4 @@
-package com.example.ex3.json;
+package com.example.server.json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

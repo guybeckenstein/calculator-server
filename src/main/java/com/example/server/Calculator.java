@@ -1,11 +1,11 @@
-package com.example.ex3;
+package com.example.server;
 
-import com.example.ex3.CalculatorModel.CalculateBinary;
-import com.example.ex3.CalculatorModel.CalculateUnary;
-import com.example.ex3.CalculatorModel.interfaces.BinaryOperation;
-import com.example.ex3.CalculatorModel.interfaces.UnaryOperation;
-import com.example.ex3.json.IndependentCalculatorJson;
-import com.example.ex3.json.ResponseJson;
+import com.example.server.CalculatorModel.CalculateBinary;
+import com.example.server.CalculatorModel.CalculateUnary;
+import com.example.server.CalculatorModel.interfaces.BinaryOperation;
+import com.example.server.CalculatorModel.interfaces.UnaryOperation;
+import com.example.server.json.IndependentCalculatorJson;
+import com.example.server.json.ResponseJson;
 
 import java.util.Deque;
 

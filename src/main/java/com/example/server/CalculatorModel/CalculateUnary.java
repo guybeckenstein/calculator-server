@@ -1,6 +1,6 @@
-package com.example.ex3.CalculatorModel;
+package com.example.server.CalculatorModel;
 
-import com.example.ex3.CalculatorModel.interfaces.UnaryOperation;
+import com.example.server.CalculatorModel.interfaces.UnaryOperation;
 
 public enum CalculateUnary {
     ABS {
