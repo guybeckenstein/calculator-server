@@ -95,9 +95,6 @@ public class Calculator {
                 errorMessage = "Error: unknown operation: " + operation;
             }
         }
-        if (errorMessage.isEmpty()) {
-            System.out.println(result);
-        }
         return new ResponseJson(result, errorMessage);
     }
 }
