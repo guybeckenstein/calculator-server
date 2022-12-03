@@ -86,7 +86,11 @@ public class CalculatorController {
             if (stack.size() < totalArgumentsToRemove) {
                 return new ResponseEntity<>(
                         new ResponseJson(-1, "Error: cannot remove " + totalArgumentsToRemove
-                                + " from the stack. It has only " + stack.size() + " arguments"), HttpStatus.CONFLICT);
+                                + "arguments  from the stack. It has only " + stack.size() + " arguments"), HttpStatus.CONFLICT);
+            } else if (totalArgumentsToRemove < 1) {
+                return new ResponseEntity<>(
+                        new ResponseJson(-1, "Error: cannot remove '" + totalArgumentsToRemove
+                                + "' arguments from the stack."), HttpStatus.CONFLICT);
             }
             IntStream.range(0, totalArgumentsToRemove).forEach((i) -> stack.pop());
             System.out.println("Stack after removing arguments: " + stack);
