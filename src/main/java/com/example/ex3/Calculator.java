@@ -22,6 +22,7 @@ public class Calculator {
             } else if (arguments.length > 2) {
                 errorMessage = "Error: Too many arguments to perform the operation " + binaryOperation.getClass().getSimpleName();
             } else {
+                System.out.print(binaryOperation.getClass().getSimpleName() + ": ");
                 ResponseJson binaryOperationResult = binaryOperation.operation(arguments[0], arguments[1]);
                 if (!binaryOperationResult.getErrorMessage().isEmpty()) {
                     errorMessage = binaryOperationResult.getErrorMessage();
@@ -37,6 +38,7 @@ public class Calculator {
                 } else if (arguments.length > 1) {
                     errorMessage = "Error: Too many arguments to perform the operation " + unaryOperation.getClass().getSimpleName();
                 } else {
+                    System.out.print(unaryOperation.getClass().getSimpleName() + ": ");
                     ResponseJson unaryOperationResult = unaryOperation.operation(arguments[0]);
                     if (!unaryOperationResult.getErrorMessage().isEmpty()) {
                         errorMessage = unaryOperationResult.getErrorMessage();
@@ -47,9 +49,6 @@ public class Calculator {
             } catch (IllegalArgumentException exc) {
                 errorMessage = "Error: unknown operation: " + operation;
             }
-        }
-        if (!errorMessage.isEmpty()) {
-            System.out.println(errorMessage);
         }
         return new ResponseJson(result, errorMessage);
     }
@@ -67,6 +66,7 @@ public class Calculator {
             } else {
                 int x = stack.pop();
                 int y = stack.pop();
+                System.out.print(binaryOperation.getClass().getSimpleName() + ": ");
                 ResponseJson binaryOperationResult = binaryOperation.operation(x, y);
                 if (!binaryOperationResult.getErrorMessage().isEmpty()) {
                     errorMessage = binaryOperationResult.getErrorMessage();
@@ -83,6 +83,7 @@ public class Calculator {
                             ". It requires 1 arguments and the stack has only 0 arguments";
                 } else {
                     int x = stack.pop();
+                    System.out.print(unaryOperation.getClass().getSimpleName() + ": ");
                     ResponseJson unaryOperationResult = unaryOperation.operation(x);
                     if (!unaryOperationResult.getErrorMessage().isEmpty()) {
                         errorMessage = unaryOperationResult.getErrorMessage();
@@ -94,9 +95,7 @@ public class Calculator {
                 errorMessage = "Error: unknown operation: " + operation;
             }
         }
-        if (!errorMessage.isEmpty()) {
-            System.out.println(errorMessage);
-        } else {
+        if (errorMessage.isEmpty()) {
             System.out.println(result);
         }
         return new ResponseJson(result, errorMessage);
