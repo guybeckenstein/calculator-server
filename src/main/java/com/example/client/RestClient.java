@@ -7,13 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
 public class RestClient {
-    private String server;
-    private RestTemplate rest;
-    private HttpHeaders headers;
-    private HttpStatusCode status;
+    private final String server;
+    private final RestTemplate rest;
+    private final HttpHeaders headers;
 
     public RestClient(int port) {
         server = "http://localhost:" + port;
@@ -29,9 +26,7 @@ public class RestClient {
         try {
             String jsonBody = new ObjectMapper().writeValueAsString(body);
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.POST, requestEntity, String.class);
-            this.setStatus(responseEntity.getStatusCode());
-            return responseEntity;
+            return rest.exchange(server + uri, HttpMethod.POST, requestEntity, String.class);
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -41,9 +36,7 @@ public class RestClient {
     public ResponseEntity<String> testGetStackSize() {
         String uri = "/stack/size";
         HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
-        return responseEntity;
+        return rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
     }
 
     /** PUT **/
@@ -52,9 +45,7 @@ public class RestClient {
         try {
         String jsonBody = new ObjectMapper().writeValueAsString(body);
         HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.PUT, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
-        return responseEntity;
+            return rest.exchange(server + uri, HttpMethod.PUT, requestEntity, String.class);
         } catch (JsonProcessingException e) {
             return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -64,25 +55,14 @@ public class RestClient {
     public ResponseEntity<String> testPerformOperation(String operation) {
         String uri = String.format("/stack/operate?operation=%s", operation);
         HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
-        return responseEntity;
+        return rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
     }
 
     /** DELETE **/
     public ResponseEntity<String> testRemoveStackArguments(int count) {
         String uri = String.format("/stack/arguments?count=%s", count);
         HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.DELETE, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
-        return responseEntity;
+        return rest.exchange(server + uri, HttpMethod.DELETE, requestEntity, String.class);
     }
 
-    public HttpStatusCode getStatus() {
-        return status;
-    }
-
-    public void setStatus(HttpStatusCode status) {
-        this.status = status;
-    }
 }
