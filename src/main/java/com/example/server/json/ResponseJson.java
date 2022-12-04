@@ -19,4 +19,10 @@ public class ResponseJson {
     public String getErrorMessage() {
         return errorMessage;
     }
+
+    @Override
+    public boolean equals(Object anObject) {
+        ResponseJson otherResponse = (ResponseJson) anObject;
+        return result == otherResponse.getResult() && errorMessage.equals(otherResponse.getErrorMessage());
+    }
 }

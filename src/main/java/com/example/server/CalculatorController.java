@@ -16,13 +16,13 @@ import java.util.stream.IntStream;
 
 @RestController
 public class CalculatorController {
-    private final Calculator calculator = new Calculator();
+    private final CalculatorService calculatorService = new CalculatorService();
     private final Deque<Integer> stack = new ArrayDeque<>();
 
     @PostMapping("/independent/calculate")
     public ResponseEntity<ResponseJson> independentCalculation(@RequestBody String body) {
         try {
-            ResponseJson calculate = calculator.calculateIndependently(
+            ResponseJson calculate = calculatorService.calculateIndependently(
                     new ObjectMapper().readValue(body, IndependentCalculatorJson.class)
             );
         if (!calculate.getErrorMessage().isEmpty()) {
@@ -64,7 +64,7 @@ public class CalculatorController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ResponseJson> performOperation(@RequestParam String operation) {
         if (operation.matches("[a-zA-Z]+")) {
-            ResponseJson calculate = calculator.calculateUsingStack(stack, operation);
+            ResponseJson calculate = calculatorService.calculateUsingStack(stack, operation);
             if (!calculate.getErrorMessage().isEmpty()) {
                 System.out.println(calculate.getErrorMessage());
                 return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);

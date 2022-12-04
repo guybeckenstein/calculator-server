@@ -1,15 +1,15 @@
 package com.example.server;
 
-import com.example.server.CalculatorModel.CalculateBinary;
-import com.example.server.CalculatorModel.CalculateUnary;
-import com.example.server.CalculatorModel.interfaces.BinaryOperation;
-import com.example.server.CalculatorModel.interfaces.UnaryOperation;
+import com.example.server.calculatorService.CalculateBinary;
+import com.example.server.calculatorService.CalculateUnary;
+import com.example.server.calculatorService.interfaces.BinaryOperation;
+import com.example.server.calculatorService.interfaces.UnaryOperation;
 import com.example.server.json.IndependentCalculatorJson;
 import com.example.server.json.ResponseJson;
 
 import java.util.Deque;
 
-public class Calculator {
+public class CalculatorService {
     public ResponseJson calculateIndependently(IndependentCalculatorJson json) {
         String errorMessage = "";
         String operation = json.getOperation();

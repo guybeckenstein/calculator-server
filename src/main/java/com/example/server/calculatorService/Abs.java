@@ -1,6 +1,6 @@
-package com.example.server.CalculatorModel;
+package com.example.server.calculatorService;
 
-import com.example.server.CalculatorModel.interfaces.UnaryOperation;
+import com.example.server.calculatorService.interfaces.UnaryOperation;
 import com.example.server.json.ResponseJson;
 
 public class Abs implements UnaryOperation {

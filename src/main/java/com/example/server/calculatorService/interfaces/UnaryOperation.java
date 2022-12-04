@@ -1,4 +1,4 @@
-package com.example.server.CalculatorModel.interfaces;
+package com.example.server.calculatorService.interfaces;
 
 import com.example.server.json.ResponseJson;
 

@@ -1,6 +1,6 @@
-package com.example.server.CalculatorModel;
+package com.example.server.calculatorService;
 
-import com.example.server.CalculatorModel.interfaces.BinaryOperation;
+import com.example.server.calculatorService.interfaces.BinaryOperation;
 
 public enum CalculateBinary {
     DIVIDE {
