@@ -2,7 +2,7 @@ package com.example.server.calculatorService.binary;
 
 import com.example.server.calculatorService.CalculateBinary;
 import com.example.server.calculatorService.interfaces.BinaryOperation;
-import com.example.server.json.ResponseJson;
+import com.example.server.json.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -31,7 +31,7 @@ class DivideTest {
             "31, -4, -7"
     })
     void divisionWithoutAndWithCarry(int x, int y, int result) {
-        assertEquals(new ResponseJson(result,""), calculateBinary.operation(x, y),
+        assertEquals(new Response(result,""), calculateBinary.operation(x, y),
                 "Expected result -> " + result + "; got instead -> " + calculateBinary.operation(x, y)
         );
     }
@@ -44,7 +44,7 @@ class DivideTest {
     })
     void divisionByZero(int x, int y, int result, String errorMessage) {
         assertEquals(
-                new ResponseJson(result, errorMessage),
+                new Response(result, errorMessage),
                 calculateBinary.operation(x, y),
                 "Expected error message, got " + result + " instead"
         );

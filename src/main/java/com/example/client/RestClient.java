@@ -1,7 +1,7 @@
 package com.example.client;
 
-import com.example.server.json.ArgumentsJson;
-import com.example.server.json.IndependentCalculatorJson;
+import com.example.server.json.Arguments;
+import com.example.server.json.IndependentCalculator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
@@ -21,7 +21,7 @@ public class RestClient {
     }
 
     /** POST **/
-    public ResponseEntity<String> testIndependentCalculation(IndependentCalculatorJson body) {
+    public ResponseEntity<String> testIndependentCalculation(IndependentCalculator body) {
         String uri = "/independent/calculate";
         try {
             String jsonBody = new ObjectMapper().writeValueAsString(body);
@@ -40,7 +40,7 @@ public class RestClient {
     }
 
     /** PUT **/
-    public ResponseEntity<String> testAddArguments(ArgumentsJson body) {
+    public ResponseEntity<String> testAddArguments(Arguments body) {
         String uri = "/stack/arguments";
         try {
         String jsonBody = new ObjectMapper().writeValueAsString(body);

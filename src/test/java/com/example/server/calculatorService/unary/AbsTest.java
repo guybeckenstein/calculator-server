@@ -2,9 +2,8 @@ package com.example.server.calculatorService.unary;
 
 import com.example.server.calculatorService.CalculateUnary;
 import com.example.server.calculatorService.interfaces.UnaryOperation;
-import com.example.server.json.ResponseJson;
+import com.example.server.json.Response;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -30,7 +29,7 @@ class AbsTest {
             errorMessage = "";
         }
         assertEquals(
-                new ResponseJson(result, errorMessage),
+                new Response(result, errorMessage),
                 calculateUnary.operation(x),
                 "Expected error message, got " + result + " instead"
         );

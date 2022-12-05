@@ -4,16 +4,16 @@ import com.example.server.calculatorService.CalculateBinary;
 import com.example.server.calculatorService.CalculateUnary;
 import com.example.server.calculatorService.interfaces.BinaryOperation;
 import com.example.server.calculatorService.interfaces.UnaryOperation;
-import com.example.server.json.IndependentCalculatorJson;
-import com.example.server.json.ResponseJson;
+import com.example.server.json.IndependentCalculator;
+import com.example.server.json.Response;
 
 import java.util.Deque;
 
 public class CalculatorService {
-    public ResponseJson calculateIndependently(IndependentCalculatorJson json) {
+    public Response calculateIndependently(IndependentCalculator json) {
         String errorMessage = "";
-        String operation = json.getOperation();
-        int[] arguments = json.getArguments();
+        String operation = json.operation();
+        int[] arguments = json.arguments();
         int result = -1;
         try {
             BinaryOperation binaryOperation = CalculateBinary.valueOf(operation.toUpperCase()).getOperationObject();
@@ -23,11 +23,11 @@ public class CalculatorService {
                 errorMessage = "Error: Too many arguments to perform the operation " + binaryOperation.getClass().getSimpleName();
             } else {
                 System.out.print(binaryOperation.getClass().getSimpleName() + ": ");
-                ResponseJson binaryOperationResult = binaryOperation.operation(arguments[0], arguments[1]);
-                if (!binaryOperationResult.getErrorMessage().isEmpty()) {
-                    errorMessage = binaryOperationResult.getErrorMessage();
+                Response binaryOperationResult = binaryOperation.operation(arguments[0], arguments[1]);
+                if (!binaryOperationResult.errorMessage().isEmpty()) {
+                    errorMessage = binaryOperationResult.errorMessage();
                 } else {
-                    result = binaryOperationResult.getResult();
+                    result = binaryOperationResult.result();
                 }
             }
         } catch (IllegalArgumentException e) {
@@ -39,20 +39,20 @@ public class CalculatorService {
                     errorMessage = "Error: Too many arguments to perform the operation " + unaryOperation.getClass().getSimpleName();
                 } else {
                     System.out.print(unaryOperation.getClass().getSimpleName() + ": ");
-                    ResponseJson unaryOperationResult = unaryOperation.operation(arguments[0]);
-                    if (!unaryOperationResult.getErrorMessage().isEmpty()) {
-                        errorMessage = unaryOperationResult.getErrorMessage();
+                    Response unaryOperationResult = unaryOperation.operation(arguments[0]);
+                    if (!unaryOperationResult.errorMessage().isEmpty()) {
+                        errorMessage = unaryOperationResult.errorMessage();
                     } else {
-                        result = unaryOperationResult.getResult();
+                        result = unaryOperationResult.result();
                     }
                 }
             } catch (IllegalArgumentException exc) {
                 errorMessage = "Error: unknown operation: " + operation;
             }
         }
-        return new ResponseJson(result, errorMessage);
+        return new Response(result, errorMessage);
     }
-    public ResponseJson calculateUsingStack(Deque<Integer> stack, String operation) {
+    public Response calculateUsingStack(Deque<Integer> stack, String operation) {
         String errorMessage = "";
         int result = -1;
         try {
@@ -67,11 +67,11 @@ public class CalculatorService {
                 int x = stack.pop();
                 int y = stack.pop();
                 System.out.print(binaryOperation.getClass().getSimpleName() + ": ");
-                ResponseJson binaryOperationResult = binaryOperation.operation(x, y);
-                if (!binaryOperationResult.getErrorMessage().isEmpty()) {
-                    errorMessage = binaryOperationResult.getErrorMessage();
+                Response binaryOperationResult = binaryOperation.operation(x, y);
+                if (!binaryOperationResult.errorMessage().isEmpty()) {
+                    errorMessage = binaryOperationResult.errorMessage();
                 } else {
-                    result = binaryOperationResult.getResult();
+                    result = binaryOperationResult.result();
                 }
             }
         } catch (IllegalArgumentException e) {
@@ -84,17 +84,17 @@ public class CalculatorService {
                 } else {
                     int x = stack.pop();
                     System.out.print(unaryOperation.getClass().getSimpleName() + ": ");
-                    ResponseJson unaryOperationResult = unaryOperation.operation(x);
-                    if (!unaryOperationResult.getErrorMessage().isEmpty()) {
-                        errorMessage = unaryOperationResult.getErrorMessage();
+                    Response unaryOperationResult = unaryOperation.operation(x);
+                    if (!unaryOperationResult.errorMessage().isEmpty()) {
+                        errorMessage = unaryOperationResult.errorMessage();
                     } else {
-                        result = unaryOperationResult.getResult();
+                        result = unaryOperationResult.result();
                     }
                 }
             } catch (IllegalArgumentException exc) {
                 errorMessage = "Error: unknown operation: " + operation;
             }
         }
-        return new ResponseJson(result, errorMessage);
+        return new Response(result, errorMessage);
     }
 }

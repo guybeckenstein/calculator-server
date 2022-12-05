@@ -1,8 +1,8 @@
 package com.example.server;
 
-import com.example.server.json.ArgumentsJson;
-import com.example.server.json.IndependentCalculatorJson;
-import com.example.server.json.ResponseJson;
+import com.example.server.json.Arguments;
+import com.example.server.json.IndependentCalculator;
+import com.example.server.json.Response;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -20,85 +20,85 @@ public class CalculatorController {
     private final Deque<Integer> stack = new ArrayDeque<>();
 
     @PostMapping("/independent/calculate")
-    public ResponseEntity<ResponseJson> independentCalculation(@RequestBody String body) {
+    public ResponseEntity<Response> independentCalculation(@RequestBody String body) {
         try {
-            ResponseJson calculate = calculatorService.calculateIndependently(
-                    new ObjectMapper().readValue(body, IndependentCalculatorJson.class)
+            Response calculate = calculatorService.calculateIndependently(
+                    new ObjectMapper().readValue(body, IndependentCalculator.class)
             );
-        if (!calculate.getErrorMessage().isEmpty()) {
-            System.out.println(calculate.getErrorMessage());
+        if (!calculate.errorMessage().isEmpty()) {
+            System.out.println(calculate.errorMessage());
             return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
         }
             return new ResponseEntity<>(calculate, HttpStatus.OK);
         } catch (IOException e) {
             System.out.println(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
-            return new ResponseEntity<>(new ResponseJson(-1, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()),
+            return new ResponseEntity<>(new Response(-1, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()),
                     HttpStatus.CONFLICT);
         }
     }
 
     @GetMapping("/stack/size")
-    public ResponseEntity<ResponseJson> getStackSize() {
+    public ResponseEntity<Response> getStackSize() {
         System.out.println("Returning stack size: " + stack.size());
-        return new ResponseEntity<>(new ResponseJson(stack.size(), ""), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
     }
 
     @PutMapping("/stack/arguments")
-    public ResponseEntity<ResponseJson> addArguments(@RequestBody String body) {
+    public ResponseEntity<Response> addArguments(@RequestBody String body) {
         System.out.println("Stack before adding arguments: " + stack);
         try {
-            int[] arguments = new ObjectMapper().readValue(body, ArgumentsJson.class).getArguments();
+            int[] arguments = new ObjectMapper().readValue(body, Arguments.class).arguments();
             for (int argument : arguments) {
                 stack.addFirst(argument);
             }
             System.out.println("Stack after adding arguments: " + stack);
-            return new ResponseEntity<>(new ResponseJson(stack.size(), ""), HttpStatus.OK);
+            return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
         } catch (JsonProcessingException e) {
             System.out.println(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
             return new ResponseEntity<>(
-                    new ResponseJson(-1, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()), HttpStatus.CONFLICT);
+                    new Response(-1, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()), HttpStatus.CONFLICT);
         }
     }
 
     @GetMapping("/stack/operate")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ResponseJson> performOperation(@RequestParam String operation) {
+    public ResponseEntity<Response> performOperation(@RequestParam String operation) {
         if (operation.matches("[a-zA-Z]+")) {
-            ResponseJson calculate = calculatorService.calculateUsingStack(stack, operation);
-            if (!calculate.getErrorMessage().isEmpty()) {
-                System.out.println(calculate.getErrorMessage());
+            Response calculate = calculatorService.calculateUsingStack(stack, operation);
+            if (!calculate.errorMessage().isEmpty()) {
+                System.out.println(calculate.errorMessage());
                 return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
             }
             return new ResponseEntity<>(calculate, HttpStatus.OK);
         } else {
             System.out.println("FormatException: operation cannot contain non-alphabet letters");
             return new ResponseEntity<>(
-                    new ResponseJson(-1, "FormatException: operation cannot contain non-alphabet letters"),
+                    new Response(-1, "FormatException: operation cannot contain non-alphabet letters"),
                     HttpStatus.CONFLICT);
         }
     }
 
     @DeleteMapping("/stack/arguments")
-    public ResponseEntity<ResponseJson> removeStackArguments(@RequestParam String count) {
+    public ResponseEntity<Response> removeStackArguments(@RequestParam String count) {
         System.out.println("Stack before removing arguments: " + stack);
         try {
             int totalArgumentsToRemove = Integer.parseInt(count);
             if (stack.size() < totalArgumentsToRemove) {
                 return new ResponseEntity<>(
-                        new ResponseJson(-1, "Error: cannot remove " + totalArgumentsToRemove
+                        new Response(-1, "Error: cannot remove " + totalArgumentsToRemove
                                 + "arguments  from the stack. It has only " + stack.size() + " arguments"), HttpStatus.CONFLICT);
             } else if (totalArgumentsToRemove < 1) {
                 return new ResponseEntity<>(
-                        new ResponseJson(-1, "Error: cannot remove '" + totalArgumentsToRemove
+                        new Response(-1, "Error: cannot remove '" + totalArgumentsToRemove
                                 + "' arguments from the stack."), HttpStatus.CONFLICT);
             }
             IntStream.range(0, totalArgumentsToRemove).forEach((i) -> stack.pop());
             System.out.println("Stack after removing arguments: " + stack);
-            return new ResponseEntity<>(new ResponseJson(stack.size(), ""), HttpStatus.OK);
+            return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
         } catch (NumberFormatException e) {
             String msg = e.getClass().getSimpleName() + ": " + e.getLocalizedMessage() + " -> operation cannot contain non-numeric letters";
             System.out.println(msg);
-            return new ResponseEntity<>(new ResponseJson(-1, msg), HttpStatus.CONFLICT);
+            return new ResponseEntity<>(new Response(-1, msg), HttpStatus.CONFLICT);
         }
     }
 }

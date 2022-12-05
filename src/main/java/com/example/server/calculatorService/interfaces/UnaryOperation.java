@@ -1,7 +1,7 @@
 package com.example.server.calculatorService.interfaces;
 
-import com.example.server.json.ResponseJson;
+import com.example.server.json.Response;
 
 public interface UnaryOperation {
-    ResponseJson operation(int x);
+    Response operation(int x);
 }

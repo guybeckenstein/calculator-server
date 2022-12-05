@@ -2,9 +2,8 @@ package com.example.server.calculatorService.binary;
 
 import com.example.server.calculatorService.CalculateBinary;
 import com.example.server.calculatorService.interfaces.BinaryOperation;
-import com.example.server.json.ResponseJson;
+import com.example.server.json.Response;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -31,6 +30,6 @@ class TimesTest {
         if (errorMessage == null) {
             errorMessage = "";
         }
-        assertEquals(new ResponseJson(result, errorMessage), calculateBinary.operation(x, y));
+        assertEquals(new Response(result, errorMessage), calculateBinary.operation(x, y));
     }
 }

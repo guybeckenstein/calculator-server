@@ -1,12 +1,13 @@
 package com.example.client;
 
-import com.example.server.json.ArgumentsJson;
-import com.example.server.json.IndependentCalculatorJson;
+import com.example.server.json.Arguments;
+import com.example.server.json.IndependentCalculator;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 public class ClientApplication {
+    /** Integration test **/
     public static void main(String[] args) {
         RestClient client = new RestClient(8496);
         try {
@@ -24,28 +25,28 @@ public class ClientApplication {
     private static void testIndependentCalculationBinary(RestClient client) {
         // Testing binary operations
         try {
-            client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{3, 1}, "multiply"));
+            client.testIndependentCalculation(new IndependentCalculator(new int[]{3, 1}, "multiply"));
         } catch (HttpClientErrorException e1) {
             System.out.println("Operation #1");
             System.out.println(e1.getLocalizedMessage() + System.getProperty("line.separator"));
             try {
-                client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{3, 0}, "Divide"));
+                client.testIndependentCalculation(new IndependentCalculator(new int[]{3, 0}, "Divide"));
             } catch (HttpClientErrorException e2) {
                 System.out.println("Operation #2");
                 System.out.println(e2.getLocalizedMessage() + System.getProperty("line.separator"));
                 try {
-                    client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{3}, "PLUS"));
+                    client.testIndependentCalculation(new IndependentCalculator(new int[]{3}, "PLUS"));
                 } catch (HttpClientErrorException e3) {
                     System.out.println("Operation #3");
                     System.out.println(e3.getLocalizedMessage() + System.getProperty("line.separator"));
                     try {
-                        client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{3, 0, 5}, "minus"));
+                        client.testIndependentCalculation(new IndependentCalculator(new int[]{3, 0, 5}, "minus"));
                     } catch (HttpClientErrorException e4) {
                         System.out.println("Operation #4");
                         System.out.println(e4.getLocalizedMessage() + System.getProperty("line.separator"));
 
                         System.out.println("Operation #5");
-                        ResponseEntity<String> result = client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{3, 5}, "minus"));
+                        ResponseEntity<String> result = client.testIndependentCalculation(new IndependentCalculator(new int[]{3, 5}, "minus"));
                         System.out.println(result + System.getProperty("line.separator"));
                     }
                 }
@@ -55,23 +56,23 @@ public class ClientApplication {
     private static void testIndependentCalculationUnary(RestClient client) {
         // Testing unary operations
         try {
-            client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{-1}, "fact"));
+            client.testIndependentCalculation(new IndependentCalculator(new int[]{-1}, "fact"));
         } catch (HttpClientErrorException e1) {
             System.out.println("Operation #1");
             System.out.println(e1.getLocalizedMessage() + System.getProperty("line.separator"));
             try {
-                client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{-1, 2}, "Abs"));
+                client.testIndependentCalculation(new IndependentCalculator(new int[]{-1, 2}, "Abs"));
             } catch (HttpClientErrorException e2) {
                 System.out.println("Operation #2");
                 System.out.println(e2.getLocalizedMessage() + System.getProperty("line.separator"));
                 try {
-                    client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{}, "FaCT"));
+                    client.testIndependentCalculation(new IndependentCalculator(new int[]{}, "FaCT"));
                 } catch (HttpClientErrorException e3) {
                     System.out.println("Operation #3");
                     System.out.println(e3.getLocalizedMessage() + System.getProperty("line.separator"));
 
                     System.out.println("Operation #4");
-                    ResponseEntity<String> result = client.testIndependentCalculation(new IndependentCalculatorJson(new int[]{-1}, "Abs"));
+                    ResponseEntity<String> result = client.testIndependentCalculation(new IndependentCalculator(new int[]{-1}, "Abs"));
                     System.out.println(result + System.getProperty("line.separator"));
                 }
             }
@@ -81,7 +82,7 @@ public class ClientApplication {
         System.out.println("Operation #1");
         System.out.println(client.testGetStackSize() + System.getProperty("line.separator"));
         System.out.println("Operation #2");
-        System.out.println(client.testAddArguments(new ArgumentsJson(new int[]{3, 4})) + System.getProperty("line.separator"));
+        System.out.println(client.testAddArguments(new Arguments(new int[]{3, 4})) + System.getProperty("line.separator"));
         System.out.println("Operation #3");
         System.out.println(client.testGetStackSize() + System.getProperty("line.separator"));
         System.out.println("Operation #4");
