@@ -19,4 +19,17 @@ public record Response(int result, String errorMessage) {
             return errorMessage.equals(otherResponse.errorMessage());
         }
     }
+
+    @Override
+    @JsonProperty("result")
+    public int result() {
+        return result;
+    }
+
+    @Override
+    @JsonProperty("error-message")
+    public String errorMessage() {
+        return errorMessage;
+    }
+
 }

@@ -1,6 +1,6 @@
 package com.example.server;
 
-import com.example.server.json.Arguments;
+import com.example.server.json.ArgumentsJson;
 import com.example.server.json.IndependentCalculator;
 import com.example.server.json.Response;
 import com.fasterxml.jackson.core.*;
@@ -47,7 +47,7 @@ public class CalculatorController {
     public ResponseEntity<Response> addArguments(@RequestBody String body) {
         System.out.println("Stack before adding arguments: " + stack);
         try {
-            int[] arguments = new ObjectMapper().readValue(body, Arguments.class).arguments();
+            int[] arguments = new ObjectMapper().readValue(body, ArgumentsJson.class).arguments();
             for (int argument : arguments) {
                 stack.addFirst(argument);
             }

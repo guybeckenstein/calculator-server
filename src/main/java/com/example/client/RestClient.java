@@ -1,6 +1,6 @@
 package com.example.client;
 
-import com.example.server.json.Arguments;
+import com.example.server.json.ArgumentsJson;
 import com.example.server.json.IndependentCalculator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +40,7 @@ public class RestClient {
     }
 
     /** PUT **/
-    public ResponseEntity<String> testAddArguments(Arguments body) {
+    public ResponseEntity<String> testAddArguments(ArgumentsJson body) {
         String uri = "/stack/arguments";
         try {
         String jsonBody = new ObjectMapper().writeValueAsString(body);
