@@ -101,4 +101,16 @@ public class CalculatorController {
             return new ResponseEntity<>(new Response(-1, msg), HttpStatus.CONFLICT);
         }
     }
+
+    @GetMapping("/logs/level")
+    public ResponseEntity<Response> getLoggerCurrentLevel(@RequestParam String loggerName) {
+        System.out.println("Getting the logger '" + loggerName + "' current level");
+        return new ResponseEntity<>(new Response(-1, ""), HttpStatus.OK); // TODO: add log level in capital case to errorMessage
+    }
+
+    @PutMapping("/logs/level")
+    public ResponseEntity<Response> setLoggerCurrentLevel(@RequestParam String loggerName, @RequestParam String loggerLevel, @RequestBody String body) {
+        System.out.println("Setting the logger '" + loggerName + "' current level to " + loggerLevel);
+        return new ResponseEntity<>(new Response(-1, loggerLevel), HttpStatus.OK);
+    }
 }
