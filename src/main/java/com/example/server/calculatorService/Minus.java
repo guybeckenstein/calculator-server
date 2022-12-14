@@ -6,7 +6,6 @@ import com.example.server.json.Response;
 public class Minus implements BinaryOperation {
     @Override
     public Response operation(int x, int y) {
-        System.out.println(x - y);
         return new Response(x - y, "");
     }
 }

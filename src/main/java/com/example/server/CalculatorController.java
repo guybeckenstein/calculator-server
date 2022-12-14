@@ -5,33 +5,49 @@ import com.example.server.json.IndependentCalculator;
 import com.example.server.json.Response;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @RestController
-public class CalculatorController {
+@Slf4j
+public class CalculatorController extends ServerController {
     private final CalculatorService calculatorService = new CalculatorService();
     private final Deque<Integer> stack = new ArrayDeque<>();
+    private final Logger independentLogger = LoggerFactory.getLogger("independent-logger");
+    private final Logger stackLogger = LoggerFactory.getLogger("stack-logger");
+
+    public CalculatorController() {
+        super();
+    }
 
     @PostMapping("/independent/calculate")
     public ResponseEntity<Response> independentCalculation(@RequestBody String body) {
+        Instant start = Instant.now();
+        requestLogger.info("Incoming request | #{} | resource: /independent/calculate | HTTP Verb POST | request #{}", requestID, requestID);
         try {
-            Response calculate = calculatorService.calculateIndependently(
-                    new ObjectMapper().readValue(body, IndependentCalculator.class)
-            );
-        if (!calculate.errorMessage().isEmpty()) {
-            System.out.println(calculate.errorMessage());
-            return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
-        }
+            IndependentCalculator calculator = new ObjectMapper().readValue(body, IndependentCalculator.class);
+            Response calculate = calculatorService.calculateIndependently(calculator);
+            if (!calculate.errorMessage().isEmpty()) {
+                independentLogger.error("Server encountered an error ! message: error-message: {} | request #{}", calculate.errorMessage(), requestID);
+                debugRequestLogger(start);
+                return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
+            }
+            independentLogger.info("Performing operation {}. Result is {} | request #{}", calculator.operation(), calculate.result(), requestID);
+            independentLogger.debug("Performing operation: {}({}) = {} | request #{}", calculator.operation(), intArrayToStr(calculator.arguments()), calculate.result(), requestID);
+            debugRequestLogger(start);
             return new ResponseEntity<>(calculate, HttpStatus.OK);
         } catch (IOException e) {
-            System.out.println(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+            independentLogger.error(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage() + " | request #{}", requestID);
+            debugRequestLogger(start);
             return new ResponseEntity<>(new Response(-1, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()),
                     HttpStatus.CONFLICT);
         }
@@ -39,22 +55,31 @@ public class CalculatorController {
 
     @GetMapping("/stack/size")
     public ResponseEntity<Response> getStackSize() {
-        System.out.println("Returning stack size: " + stack.size());
+        Instant start = Instant.now();
+        requestLogger.info("Incoming request | #{} | resource: /stack/size | HTTP Verb GET | request #{}", requestID, requestID);
+        stackLogger.info("Stack size is {} | request #{}", stack.size(), requestID);
+        stackLogger.debug("Stack content (first == top): {} | request #{}", stack, requestID);
+        debugRequestLogger(start);
         return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
     }
 
     @PutMapping("/stack/arguments")
     public ResponseEntity<Response> addArguments(@RequestBody String body) {
-        System.out.println("Stack before adding arguments: " + stack);
+        int startingStackSize = stack.size();
+        Instant start = Instant.now();
+        requestLogger.info("Incoming request | #{} | resource: /stack/arguments | HTTP Verb PUT | request #{}", requestID, requestID);
         try {
             int[] arguments = new ObjectMapper().readValue(body, ArgumentsJson.class).arguments();
             for (int argument : arguments) {
                 stack.addFirst(argument);
             }
-            System.out.println("Stack after adding arguments: " + stack);
+            stackLogger.info("Adding total of {} argument(s) to the stack | Stack size: {} | request #{}", arguments.length, stack.size(), requestID);
+            stackLogger.debug("Adding arguments: {} | Stack size before {} | stack size after {} | request #{}", intArrayToStr(arguments), startingStackSize, stack.size(), requestID);
+            debugRequestLogger(start);
             return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
         } catch (JsonProcessingException e) {
-            System.out.println(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
+            stackLogger.error(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage() + " | request #{}", requestID);
+            debugRequestLogger(start);
             return new ResponseEntity<>(
                     new Response(-1, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()), HttpStatus.CONFLICT);
         }
@@ -63,54 +88,70 @@ public class CalculatorController {
     @GetMapping("/stack/operate")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Response> performOperation(@RequestParam String operation) {
+        Instant start = Instant.now();
+
+        requestLogger.info("Incoming request | #{} | resource: /stack/operate | HTTP Verb GET | request #{}", requestID, requestID);
         if (operation.matches("[a-zA-Z]+")) {
+            List<Integer> arguments = getArgumentsFromStack(calculatorService.isBinaryOperation(operation));
             Response calculate = calculatorService.calculateUsingStack(stack, operation);
             if (!calculate.errorMessage().isEmpty()) {
-                System.out.println(calculate.errorMessage());
+                stackLogger.error("Server encountered an error ! message: {} | request #{}", calculate.errorMessage(), requestID);
+                debugRequestLogger(start);
                 return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
             }
+            stackLogger.info("Performing operation {}. Result is {} | stack size: {} | request #{}", operation, calculate.result(), stack.size(), requestID);
+            String debugArguments = intArrayToStr(Objects.requireNonNull(arguments).stream().mapToInt(Integer::intValue).toArray());
+            stackLogger.debug("Performing operation: {}({}) = {} | request #{}", operation, debugArguments, calculate.result(), requestID);
+            debugRequestLogger(start);
             return new ResponseEntity<>(calculate, HttpStatus.OK);
         } else {
-            System.out.println("FormatException: operation cannot contain non-alphabet letters");
+            stackLogger.error("FormatException: operation cannot contain non-alphabet letters | request #{}", requestID);
+            stackLogger.info("Performing operation {}. Result is -1 | stack size: {} | request #{}", operation, stack.size(), requestID);
+            debugRequestLogger(start);
             return new ResponseEntity<>(
                     new Response(-1, "FormatException: operation cannot contain non-alphabet letters"),
                     HttpStatus.CONFLICT);
         }
     }
 
+    private List<Integer> getArgumentsFromStack(boolean binaryOperation) {
+        int argumentsInOperation = binaryOperation ? 2 : 1;
+        if (stack.size() < argumentsInOperation) {
+            return null;
+        }
+        List<Integer> res = new ArrayList<>();
+        for (int i = 0; i < argumentsInOperation; i++) {
+            res.add(stack.pop());
+        }
+        for (int i = argumentsInOperation - 1; i >= 0; i--) {
+            stack.addFirst(res.get(i));
+        }
+
+        return res;
+    }
+
     @DeleteMapping("/stack/arguments")
     public ResponseEntity<Response> removeStackArguments(@RequestParam String count) {
-        System.out.println("Stack before removing arguments: " + stack);
+        Instant start = Instant.now();
+        requestLogger.info("Incoming request | #{} | resource: /stack/arguments | HTTP Verb DELETE | request #{}", requestID, requestID);
         try {
             int totalArgumentsToRemove = Integer.parseInt(count);
-            if (stack.size() < totalArgumentsToRemove) {
+            if (stack.size() < totalArgumentsToRemove || totalArgumentsToRemove < 1) {
+                stackLogger.error("Server encountered an error ! message: Error: cannot remove '{}' arguments from the stack. | request #{}", totalArgumentsToRemove, requestID);
+                debugRequestLogger(start);
                 return new ResponseEntity<>(
                         new Response(-1, "Error: cannot remove " + totalArgumentsToRemove
                                 + "arguments  from the stack. It has only " + stack.size() + " arguments"), HttpStatus.CONFLICT);
-            } else if (totalArgumentsToRemove < 1) {
-                return new ResponseEntity<>(
-                        new Response(-1, "Error: cannot remove '" + totalArgumentsToRemove
-                                + "' arguments from the stack."), HttpStatus.CONFLICT);
             }
             IntStream.range(0, totalArgumentsToRemove).forEach((i) -> stack.pop());
-            System.out.println("Stack after removing arguments: " + stack);
+            stackLogger.info("Removing total {} argument(s) from the stack | Stack size: {} | request #{}", totalArgumentsToRemove, stack.size(), requestID);
+            debugRequestLogger(start);
             return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
         } catch (NumberFormatException e) {
             String msg = e.getClass().getSimpleName() + ": " + e.getLocalizedMessage() + " -> operation cannot contain non-numeric letters";
-            System.out.println(msg);
+            stackLogger.error(msg + " | request #{}", requestID);
+            debugRequestLogger(start);
             return new ResponseEntity<>(new Response(-1, msg), HttpStatus.CONFLICT);
         }
-    }
-
-    @GetMapping("/logs/level")
-    public ResponseEntity<Response> getLoggerCurrentLevel(@RequestParam String loggerName) {
-        System.out.println("Getting the logger '" + loggerName + "' current level");
-        return new ResponseEntity<>(new Response(-1, ""), HttpStatus.OK); // TODO: add log level in capital case to errorMessage
-    }
-
-    @PutMapping("/logs/level")
-    public ResponseEntity<Response> setLoggerCurrentLevel(@RequestParam String loggerName, @RequestParam String loggerLevel, @RequestBody String body) {
-        System.out.println("Setting the logger '" + loggerName + "' current level to " + loggerLevel);
-        return new ResponseEntity<>(new Response(-1, loggerLevel), HttpStatus.OK);
     }
 }

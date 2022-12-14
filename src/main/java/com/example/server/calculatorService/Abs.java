@@ -7,7 +7,6 @@ public class Abs implements UnaryOperation {
     @Override
     public Response operation(int x) {
         x = x > 0 ? x : (x * -1);
-        System.out.println(x);
         return new Response(x, "");
     }
 }

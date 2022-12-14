@@ -1,0 +1,2 @@
+15-54-2022 00:54:04.448 INFO: Performing operation divide. Result is 2 | request #3
+15-54-2022 00:54:04.448 DEBUG: Performing operation: divide(4,2) = 2 | request #3
