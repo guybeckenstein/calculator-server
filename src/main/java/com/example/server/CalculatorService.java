@@ -10,10 +10,10 @@ import com.example.server.json.Response;
 import java.util.Deque;
 
 public class CalculatorService {
-    public Response calculateIndependently(IndependentCalculator json) {
+    public Response calculateIndependently(IndependentCalculator calculator) {
         String errorMessage = "";
-        String operation = json.operation();
-        int[] arguments = json.arguments();
+        String operation = calculator.operation();
+        int[] arguments = calculator.arguments();
         int result = -1;
         try {
             BinaryOperation binaryOperation = CalculateBinary.valueOf(operation.toUpperCase()).getOperationObject();
@@ -22,7 +22,6 @@ public class CalculatorService {
             } else if (arguments.length > 2) {
                 errorMessage = "Error: Too many arguments to perform the operation " + binaryOperation.getClass().getSimpleName();
             } else {
-                System.out.print(binaryOperation.getClass().getSimpleName() + ": ");
                 Response binaryOperationResult = binaryOperation.operation(arguments[0], arguments[1]);
                 if (!binaryOperationResult.errorMessage().isEmpty()) {
                     errorMessage = binaryOperationResult.errorMessage();
@@ -38,7 +37,6 @@ public class CalculatorService {
                 } else if (arguments.length > 1) {
                     errorMessage = "Error: Too many arguments to perform the operation " + unaryOperation.getClass().getSimpleName();
                 } else {
-                    System.out.print(unaryOperation.getClass().getSimpleName() + ": ");
                     Response unaryOperationResult = unaryOperation.operation(arguments[0]);
                     if (!unaryOperationResult.errorMessage().isEmpty()) {
                         errorMessage = unaryOperationResult.errorMessage();
@@ -66,7 +64,6 @@ public class CalculatorService {
             } else {
                 int x = stack.pop();
                 int y = stack.pop();
-                System.out.print(binaryOperation.getClass().getSimpleName() + ": ");
                 Response binaryOperationResult = binaryOperation.operation(x, y);
                 if (!binaryOperationResult.errorMessage().isEmpty()) {
                     errorMessage = binaryOperationResult.errorMessage();
@@ -83,7 +80,6 @@ public class CalculatorService {
                             ". It requires 1 arguments and the stack has only 0 arguments";
                 } else {
                     int x = stack.pop();
-                    System.out.print(unaryOperation.getClass().getSimpleName() + ": ");
                     Response unaryOperationResult = unaryOperation.operation(x);
                     if (!unaryOperationResult.errorMessage().isEmpty()) {
                         errorMessage = unaryOperationResult.errorMessage();
@@ -97,4 +93,12 @@ public class CalculatorService {
         }
         return new Response(result, errorMessage);
     }
+
+    public boolean isBinaryOperation(String operation) {
+        try {
+            CalculateBinary.valueOf(operation.toUpperCase()).getOperationObject();
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }}
 }

@@ -1,0 +1,54 @@
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{dd-mm-yyyy HH:mm:ss.SSS} %p: %msg%n</Property>
+        <Property name="APP_LOG_ROOT">C:/logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+        </Console>
+
+        <RollingFile name="requestLogger" fileName="${APP_LOG_ROOT}/requests.log" filePattern="${APP_LOG_ROOT}/requests-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="19500KB" />
+            </Policies>
+            <DefaultRolloverStrategy max="1" />
+        </RollingFile>
+        <RollingFile name="stackLogger" fileName="${APP_LOG_ROOT}/stack.log" filePattern="${APP_LOG_ROOT}/stack-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="19500KB" />
+            </Policies>
+            <DefaultRolloverStrategy max="1" />
+        </RollingFile>
+        <RollingFile name="independentLogger"
+                     fileName="${APP_LOG_ROOT}/independent.log"
+                     filePattern="${APP_LOG_ROOT}/independent-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="19500KB" />
+            </Policies>
+            <DefaultRolloverStrategy max="1" />
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="request-logger" additivity="false">
+            <AppenderRef ref="requestLogger" />
+            <AppenderRef ref="Console" />
+        </Logger>
+        <Logger name="stack-logger" additivity="false">
+            <AppenderRef ref="stackLogger" />
+            <AppenderRef ref="Console" />
+        </Logger>
+        <Logger name="independent-logger" additivity="false">
+            <AppenderRef ref="independentLogger" />
+            <AppenderRef ref="Console" />
+        </Logger>
+        <Root level="debug">
+            <AppenderRef ref="Console" />
+        </Root>
+    </Loggers>
+</Configuration>
