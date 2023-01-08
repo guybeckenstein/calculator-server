@@ -6,6 +6,7 @@ import com.example.server.json.Response;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -32,21 +33,22 @@ public class CalculatorController extends ServerController {
     @PostMapping("/independent/calculate")
     public ResponseEntity<Response> independentCalculation(@RequestBody String body) {
         Instant start = Instant.now();
-        requestLogger.info("Incoming request | #{} | resource: /independent/calculate | HTTP Verb POST | request #{}", requestID, requestID);
+        ThreadContext.put("requestID", Integer.toString(requestID));
+        requestLogger.info("Incoming request | #{} | resource: /independent/calculate | HTTP Verb POST", requestID);
         try {
             IndependentCalculator calculator = new ObjectMapper().readValue(body, IndependentCalculator.class);
             Response calculate = calculatorService.calculateIndependently(calculator);
             if (!calculate.errorMessage().isEmpty()) {
-                independentLogger.error("Server encountered an error ! message: error-message: {} | request #{}", calculate.errorMessage(), requestID);
+                independentLogger.error("Server encountered an error ! message: {}", calculate.errorMessage());
                 debugRequestLogger(start);
                 return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
             }
-            independentLogger.info("Performing operation {}. Result is {} | request #{}", calculator.operation(), calculate.result(), requestID);
-            independentLogger.debug("Performing operation: {}({}) = {} | request #{}", calculator.operation(), intArrayToStr(calculator.arguments()), calculate.result(), requestID);
+            independentLogger.info("Performing operation {}. Result is {}", calculator.operation(), calculate.result());
+            independentLogger.debug("Performing operation: {}({}) = {}", calculator.operation(), intArrayToStr(calculator.arguments()), calculate.result());
             debugRequestLogger(start);
             return new ResponseEntity<>(calculate, HttpStatus.OK);
         } catch (IOException e) {
-            independentLogger.error(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage() + " | request #{}", requestID);
+            independentLogger.error(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
             debugRequestLogger(start);
             return new ResponseEntity<>(new Response(-1, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()),
                     HttpStatus.CONFLICT);
@@ -56,9 +58,10 @@ public class CalculatorController extends ServerController {
     @GetMapping("/stack/size")
     public ResponseEntity<Response> getStackSize() {
         Instant start = Instant.now();
-        requestLogger.info("Incoming request | #{} | resource: /stack/size | HTTP Verb GET | request #{}", requestID, requestID);
-        stackLogger.info("Stack size is {} | request #{}", stack.size(), requestID);
-        stackLogger.debug("Stack content (first == top): {} | request #{}", stack, requestID);
+        ThreadContext.put("requestID", Integer.toString(requestID));
+        requestLogger.info("Incoming request | #{} | resource: /stack/size | HTTP Verb GET", requestID);
+        stackLogger.info("Stack size is {}", stack.size());
+        stackLogger.debug("Stack content (first == top): {}", stack);
         debugRequestLogger(start);
         return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
     }
@@ -67,18 +70,19 @@ public class CalculatorController extends ServerController {
     public ResponseEntity<Response> addArguments(@RequestBody String body) {
         int startingStackSize = stack.size();
         Instant start = Instant.now();
-        requestLogger.info("Incoming request | #{} | resource: /stack/arguments | HTTP Verb PUT | request #{}", requestID, requestID);
+        ThreadContext.put("requestID", Integer.toString(requestID));
+        requestLogger.info("Incoming request | #{} | resource: /stack/arguments | HTTP Verb PUT", requestID);
         try {
             int[] arguments = new ObjectMapper().readValue(body, ArgumentsJson.class).arguments();
             for (int argument : arguments) {
                 stack.addFirst(argument);
             }
-            stackLogger.info("Adding total of {} argument(s) to the stack | Stack size: {} | request #{}", arguments.length, stack.size(), requestID);
-            stackLogger.debug("Adding arguments: {} | Stack size before {} | stack size after {} | request #{}", intArrayToStr(arguments), startingStackSize, stack.size(), requestID);
+            stackLogger.info("Adding total of {} argument(s) to the stack | Stack size: {}", arguments.length, stack.size());
+            stackLogger.debug("Adding arguments: {} | Stack size before {} | stack size after {}", intArrayToStr(arguments), startingStackSize, stack.size());
             debugRequestLogger(start);
             return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
         } catch (JsonProcessingException e) {
-            stackLogger.error(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage() + " | request #{}", requestID);
+            stackLogger.error(e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
             debugRequestLogger(start);
             return new ResponseEntity<>(
                     new Response(-1, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage()), HttpStatus.CONFLICT);
@@ -89,24 +93,24 @@ public class CalculatorController extends ServerController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Response> performOperation(@RequestParam String operation) {
         Instant start = Instant.now();
-
-        requestLogger.info("Incoming request | #{} | resource: /stack/operate | HTTP Verb GET | request #{}", requestID, requestID);
+        ThreadContext.put("requestID", Integer.toString(requestID));
+        requestLogger.info("Incoming request | #{} | resource: /stack/operate | HTTP Verb GET", requestID);
         if (operation.matches("[a-zA-Z]+")) {
             List<Integer> arguments = getArgumentsFromStack(calculatorService.isBinaryOperation(operation));
             Response calculate = calculatorService.calculateUsingStack(stack, operation);
             if (!calculate.errorMessage().isEmpty()) {
-                stackLogger.error("Server encountered an error ! message: {} | request #{}", calculate.errorMessage(), requestID);
+                stackLogger.error("Server encountered an error ! message: {}", calculate.errorMessage());
                 debugRequestLogger(start);
                 return new ResponseEntity<>(calculate, HttpStatus.CONFLICT);
             }
-            stackLogger.info("Performing operation {}. Result is {} | stack size: {} | request #{}", operation, calculate.result(), stack.size(), requestID);
+            stackLogger.info("Performing operation {}. Result is {} | stack size: {}", operation, calculate.result(), stack.size());
             String debugArguments = intArrayToStr(Objects.requireNonNull(arguments).stream().mapToInt(Integer::intValue).toArray());
-            stackLogger.debug("Performing operation: {}({}) = {} | request #{}", operation, debugArguments, calculate.result(), requestID);
+            stackLogger.debug("Performing operation: {}({}) = {}", operation, debugArguments, calculate.result());
             debugRequestLogger(start);
             return new ResponseEntity<>(calculate, HttpStatus.OK);
         } else {
-            stackLogger.error("FormatException: operation cannot contain non-alphabet letters | request #{}", requestID);
-            stackLogger.info("Performing operation {}. Result is -1 | stack size: {} | request #{}", operation, stack.size(), requestID);
+            stackLogger.error("FormatException: operation cannot contain non-alphabet letters");
+            stackLogger.info("Performing operation {}. Result is -1 | stack size: {}", operation, stack.size());
             debugRequestLogger(start);
             return new ResponseEntity<>(
                     new Response(-1, "FormatException: operation cannot contain non-alphabet letters"),
@@ -133,23 +137,24 @@ public class CalculatorController extends ServerController {
     @DeleteMapping("/stack/arguments")
     public ResponseEntity<Response> removeStackArguments(@RequestParam String count) {
         Instant start = Instant.now();
-        requestLogger.info("Incoming request | #{} | resource: /stack/arguments | HTTP Verb DELETE | request #{}", requestID, requestID);
+        ThreadContext.put("requestID", Integer.toString(requestID));
+        requestLogger.info("Incoming request | #{} | resource: /stack/arguments | HTTP Verb DELETE", requestID);
         try {
             int totalArgumentsToRemove = Integer.parseInt(count);
             if (stack.size() < totalArgumentsToRemove || totalArgumentsToRemove < 1) {
-                stackLogger.error("Server encountered an error ! message: Error: cannot remove '{}' arguments from the stack. | request #{}", totalArgumentsToRemove, requestID);
+                stackLogger.error("Server encountered an error ! message: Error: cannot remove '{}' arguments from the stack.", totalArgumentsToRemove);
                 debugRequestLogger(start);
                 return new ResponseEntity<>(
                         new Response(-1, "Error: cannot remove " + totalArgumentsToRemove
                                 + "arguments  from the stack. It has only " + stack.size() + " arguments"), HttpStatus.CONFLICT);
             }
             IntStream.range(0, totalArgumentsToRemove).forEach((i) -> stack.pop());
-            stackLogger.info("Removing total {} argument(s) from the stack | Stack size: {} | request #{}", totalArgumentsToRemove, stack.size(), requestID);
+            stackLogger.info("Removing total {} argument(s) from the stack | Stack size: {}", totalArgumentsToRemove, stack.size());
             debugRequestLogger(start);
             return new ResponseEntity<>(new Response(stack.size(), ""), HttpStatus.OK);
         } catch (NumberFormatException e) {
             String msg = e.getClass().getSimpleName() + ": " + e.getLocalizedMessage() + " -> operation cannot contain non-numeric letters";
-            stackLogger.error(msg + " | request #{}", requestID);
+            stackLogger.error(msg);
             debugRequestLogger(start);
             return new ResponseEntity<>(new Response(-1, msg), HttpStatus.CONFLICT);
         }

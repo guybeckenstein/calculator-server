@@ -58,7 +58,7 @@ public class CalculatorService {
             if (stack.size() < 2) {
                 errorMessage = "Error: cannot implement operation " +
                         operation +
-                        ". It requires 2 arguments and stack has only " +
+                        ". It requires 2 arguments and the stack has only " +
                         stack.size() + " arguments";
 
             } else {
@@ -77,7 +77,7 @@ public class CalculatorService {
                 if (stack.size() < 1) {
                     errorMessage = "Error: cannot implement operation " +
                             operation +
-                            ". It requires 1 arguments and stack has only 0 arguments";
+                            ". It requires 1 arguments and the stack has only 0 arguments";
                 } else {
                     int x = stack.pop();
                     Response unaryOperationResult = unaryOperation.operation(x);

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
     <Properties>
-        <Property name="LOG_PATTERN">%d{dd-mm-yyyy HH:mm:ss.SSS} %p: %msg%n</Property>
+        <Property name="LOG_PATTERN">%d{dd-MM-yyyy HH:mm:ss.SSS} %p: %msg | request #%X{requestID} %n</Property>
         <Property name="APP_LOG_ROOT">logs</Property>
     </Properties>
 
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="${LOG_PATTERN}" />
+            <PatternLayout pattern="$%d{dd-MM-yyyy HH:mm:ss.SSS} %p: %msg %n" />
         </Console>
         <RollingFile name="requestLogger" fileName="${APP_LOG_ROOT}/requests.log"
                      filePattern="${APP_LOG_ROOT}/requests-%d{yyyy-MM-dd}-%i.log">

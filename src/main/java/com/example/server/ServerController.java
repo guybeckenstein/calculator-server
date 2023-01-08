@@ -17,7 +17,8 @@ public class ServerController {
     protected void debugRequestLogger(Instant start) {
         Instant end = Instant.now();
         Duration timeElapsed = Duration.between(start, end);
-        requestLogger.debug("request #{} duration: {}ms | request #{}", requestID, timeElapsed.toMillis(), requestID++);
+        requestLogger.debug("request #{} duration: {}ms", requestID, timeElapsed.toMillis());
+        requestID++;
     }
 
     protected static String intArrayToStr(int[] arr) {
